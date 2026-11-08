@@ -1,10 +1,10 @@
-name: Build Android APK
+name: Build, test and package
 on:
   workflow_dispatch:
   push:
     branches: [main, master]
 jobs:
-  apk:
+  flutter:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -12,9 +12,39 @@ jobs:
         with: { distribution: temurin, java-version: '17' }
       - uses: subosito/flutter-action@v2
         with: { channel: stable, cache: true }
+      - name: Prepare Android project
+        run: |
+          [ -d android ] || flutter create . --platforms=android --project-name athera --org com.athera
+          flutter pub get
+      - name: Analyze
+        id: analyze
+        continue-on-error: true
+        run: flutter analyze --no-pub
+      - name: Test
+        id: test
+        continue-on-error: true
+        run: flutter test --no-pub
       - name: Build APK
         run: bash tool/build_apk.sh
       - uses: actions/upload-artifact@v4
         with:
           name: athera-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Fail if analyze or tests failed
+        if: steps.analyze.outcome == 'failure' || steps.test.outcome == 'failure'
+        run: |
+          echo "analyze: ${{ steps.analyze.outcome }}, test: ${{ steps.test.outcome }}"
+          exit 1
+  ai-service:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Test AI service
+        run: |
+          if [ -d ai_service ]; then
+            cd ai_service
+            pip install -r requirements-dev.txt
+            python -m pytest -q
+          fi
