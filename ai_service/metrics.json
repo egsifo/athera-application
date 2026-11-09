@@ -1,0 +1,16 @@
+{
+  "holdout_accuracy": 0.8587,
+  "baseline_accuracy": 0.7653,
+  "cv_scores": [
+    0.7495,
+    0.8539,
+    0.8713,
+    0.8253,
+    0.8511
+  ],
+  "horizon_minutes": 120,
+  "trained_on": "athera_synthetic_10col.csv (SIMULATED data, not NASA data)",
+  "data_kind": "simulated",
+  "rows": 8640,
+  "sklearn_version": "1.9.1"
+}

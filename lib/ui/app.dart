@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../core/theme.dart';
 import '../state/app_controller.dart';
+import '../state/wellness_state.dart';
 import 'screens/app_shell.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/splash_screen.dart';
@@ -30,8 +31,11 @@ class _AtheraAppState extends State<AtheraApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<AppController>.value(
-      value: widget.controller,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AppController>.value(value: widget.controller),
+        ChangeNotifierProvider<WellnessState>(create: (ctx) => WellnessState(ctx.read<AppController>())),
+      ],
       child: MaterialApp(
         title: 'ATHERA',
         debugShowCheckedModeBanner: false,

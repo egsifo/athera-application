@@ -5,6 +5,8 @@ import 'package:sqflite/sqflite.dart';
 
 import '../domain/ai_models.dart';
 import '../domain/models.dart';
+import '../wellness/check_in.dart';
+import '../wellness/routine.dart';
 import 'repository.dart';
 
 /// SQLite persistence with versioned migrations.
@@ -48,6 +50,16 @@ class SqliteRepository implements AtheraRepository {
       '''CREATE TABLE sync_records(
         id TEXT PRIMARY KEY, kind TEXT NOT NULL, started_at INTEGER NOT NULL,
         count INTEGER NOT NULL, status TEXT NOT NULL, note TEXT NOT NULL)''',
+    ],
+    2: [
+      '''CREATE TABLE check_ins(
+        id TEXT PRIMARY KEY, astronaut_id TEXT NOT NULL, at INTEGER NOT NULL,
+        is_demo INTEGER NOT NULL DEFAULT 0, json TEXT NOT NULL)''',
+      'CREATE INDEX idx_checkins_astro ON check_ins(astronaut_id, at)',
+      '''CREATE TABLE routine_log(
+        astronaut_id TEXT NOT NULL, task_id TEXT NOT NULL, day TEXT NOT NULL,
+        done_at INTEGER NOT NULL, is_demo INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY(astronaut_id, task_id, day))''',
     ],
   };
 
@@ -197,7 +209,7 @@ class SqliteRepository implements AtheraRepository {
         await _d.insert('risk_assessments', {
           'astronaut_id': r.astronautId,
           'generated_at': r.generatedAt.toUtc().millisecondsSinceEpoch,
-          'is_demo': r.isMock ? 1 : 0,
+          'is_demo': (r.isMock || r.inputSimulated) ? 1 : 0,
           'json': jsonEncode(r.toJson()),
         });
       });
@@ -302,8 +314,71 @@ class SqliteRepository implements AtheraRepository {
       });
 
   @override
+  Future<void> saveCheckIn(CheckIn c) => _guard(() async {
+        await _d.insert(
+          'check_ins',
+          {
+            'id': c.id,
+            'astronaut_id': c.astronautId,
+            'at': c.at.toUtc().millisecondsSinceEpoch,
+            'is_demo': c.isDemo ? 1 : 0,
+            'json': jsonEncode(c.toJson()),
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      });
+
+  @override
+  Future<List<CheckIn>> checkIns(String astronautId, {int limit = 60}) => _guard(() async {
+        final rows = await _d.query('check_ins',
+            where: 'astronaut_id = ?', whereArgs: [astronautId], orderBy: 'at DESC', limit: limit);
+        return [for (final r in rows) CheckIn.fromJson((jsonDecode(r['json']! as String) as Map).cast<String, Object?>())];
+      });
+
+  @override
+  Future<void> setRoutineDone(RoutineLogEntry e, bool done) => _guard(() async {
+        if (done) {
+          await _d.insert(
+            'routine_log',
+            {
+              'astronaut_id': e.astronautId,
+              'task_id': e.taskId,
+              'day': e.day,
+              'done_at': e.doneAt.toUtc().millisecondsSinceEpoch,
+              'is_demo': e.isDemo ? 1 : 0,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        } else {
+          await _d.delete('routine_log',
+              where: 'astronaut_id = ? AND task_id = ? AND day = ?', whereArgs: [e.astronautId, e.taskId, e.day]);
+        }
+      });
+
+  @override
+  Future<List<RoutineLogEntry>> routineLog(String astronautId, {String? sinceDay}) => _guard(() async {
+        final rows = await _d.query(
+          'routine_log',
+          where: sinceDay == null ? 'astronaut_id = ?' : 'astronaut_id = ? AND day >= ?',
+          whereArgs: sinceDay == null ? [astronautId] : [astronautId, sinceDay],
+        );
+        return [
+          for (final r in rows)
+            RoutineLogEntry(
+              astronautId: r['astronaut_id']! as String,
+              taskId: r['task_id']! as String,
+              day: r['day']! as String,
+              doneAt: DateTime.fromMillisecondsSinceEpoch(r['done_at']! as int, isUtc: true),
+              isDemo: r['is_demo'] == 1,
+            ),
+        ];
+      });
+
+  @override
   Future<void> deleteDemoData() => _guard(() async {
         final b = _d.batch();
+        b.delete('check_ins', where: 'is_demo = 1');
+        b.delete('routine_log', where: 'is_demo = 1');
         b.delete('observations', where: "source = 'demo'");
         b.delete('forecasts', where: 'is_demo = 1');
         b.delete('risk_assessments', where: 'is_demo = 1');

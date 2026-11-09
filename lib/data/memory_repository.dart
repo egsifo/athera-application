@@ -1,5 +1,7 @@
 import '../domain/ai_models.dart';
 import '../domain/models.dart';
+import '../wellness/check_in.dart';
+import '../wellness/routine.dart';
 import 'repository.dart';
 
 /// In-memory implementation: used for tests and as an explicit fallback when
@@ -14,6 +16,8 @@ class MemoryRepository implements AtheraRepository {
   final Map<String, AlertEvent> _alerts = {};
   final Map<String, EmergencyEvent> _emergencies = {};
   final List<SyncRecord> _sync = [];
+  final Map<String, CheckIn> _checkIns = {};
+  final Map<String, RoutineLogEntry> _routine = {};
 
   @override
   String get backendName => 'memory (not persisted)';
@@ -139,10 +143,39 @@ class MemoryRepository implements AtheraRepository {
       _sync.length > limit ? _sync.sublist(0, limit) : List.of(_sync);
 
   @override
+  Future<void> saveCheckIn(CheckIn c) async => _checkIns[c.id] = c;
+
+  @override
+  Future<List<CheckIn>> checkIns(String astronautId, {int limit = 60}) async {
+    final l = _checkIns.values.where((c) => c.astronautId == astronautId).toList()
+      ..sort((a, b) => b.at.compareTo(a.at));
+    return l.take(limit).toList();
+  }
+
+  String _rk(RoutineLogEntry e) => '${e.astronautId}|${e.taskId}|${e.day}';
+
+  @override
+  Future<void> setRoutineDone(RoutineLogEntry e, bool done) async {
+    if (done) {
+      _routine[_rk(e)] = e;
+    } else {
+      _routine.remove(_rk(e));
+    }
+  }
+
+  @override
+  Future<List<RoutineLogEntry>> routineLog(String astronautId, {String? sinceDay}) async => [
+        for (final e in _routine.values)
+          if (e.astronautId == astronautId && (sinceDay == null || e.day.compareTo(sinceDay) >= 0)) e,
+      ];
+
+  @override
   Future<void> deleteDemoData() async {
+    _checkIns.removeWhere((_, c) => c.isDemo);
+    _routine.removeWhere((_, e) => e.isDemo);
     _obs.removeWhere((_, o) => o.isSimulated);
     _forecasts.removeWhere((f) => f.isMock);
-    _risks.removeWhere((r) => r.isMock);
+    _risks.removeWhere((r) => r.isMock || r.inputSimulated);
     _alerts.removeWhere((_, a) => a.isDemo);
     _emergencies.removeWhere((_, e) => e.simulated);
   }

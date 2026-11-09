@@ -13,6 +13,7 @@ import '../export_helper.dart';
 import '../vital_format.dart';
 import '../widgets/charts.dart';
 import '../widgets/common.dart';
+import 'model_report_screen.dart';
 
 /// "Analytics" tab: AI forecasts / risk (from the external service) and
 /// descriptive insights (computed by the app). The two are kept visually and
@@ -126,6 +127,22 @@ class _ForecastViewState extends State<_ForecastView> {
       ],
       const SectionHeader('Risk history'),
       _RiskHistory(c: c, id: id, version: snap.resultAt),
+      const SizedBox(height: Sp.m),
+      AtCard(
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ModelReportScreen())),
+        child: const Row(children: [
+          Icon(Icons.fact_check_outlined, color: AC.cyan),
+          SizedBox(width: Sp.m),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('Model report card', style: TextStyle(fontWeight: FontWeight.w600)),
+              Text('How well the risk model did on data it never saw (simulated)',
+                  style: TextStyle(color: AC.textDim, fontSize: 12)),
+            ]),
+          ),
+          Icon(Icons.chevron_right_rounded, color: AC.textDim),
+        ]),
+      ),
     ]);
   }
 

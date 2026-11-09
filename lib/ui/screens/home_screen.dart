@@ -7,9 +7,11 @@ import '../../core/theme.dart';
 import '../../domain/ai_models.dart';
 import '../../domain/models.dart';
 import '../../state/app_controller.dart';
+import '../../state/wellness_state.dart';
 import '../vital_format.dart';
 import '../widgets/charts.dart';
 import '../widgets/common.dart';
+import '../widgets/guidance_card.dart';
 import 'mission_control_screen.dart';
 import 'sos_screen.dart';
 
@@ -33,12 +35,14 @@ class HomeScreen extends StatelessWidget {
         Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Expanded(child: _StatusCard(c: c)),
           const SizedBox(width: Sp.m),
-          Expanded(child: _RiskCard(c: c, onTap: () => onGoTo(2))),
+          Expanded(child: _RiskCard(c: c, onTap: () => onGoTo(3))),
         ]),
+        const SizedBox(height: Sp.m),
+        GuidanceCard(guidance: context.watch<WellnessState>().guidance, compact: true, onTap: () => onGoTo(2)),
         const SizedBox(height: Sp.m),
         _QuickActions(c: c, onGoTo: onGoTo),
         SectionHeader('Active alerts',
-            trailing: alerts.isEmpty ? null : TextButton(onPressed: () => onGoTo(4), child: const Text('View all'))),
+            trailing: alerts.isEmpty ? null : TextButton(onPressed: () => onGoTo(5), child: const Text('View all'))),
         if (alerts.isEmpty)
           const AtCard(
             child: Row(children: [
@@ -239,9 +243,9 @@ class _QuickActions extends StatelessWidget {
         );
     return Column(children: [
       Row(children: [
-        btn(Icons.hub_rounded, 'Crew', () => onGoTo(3)),
+        btn(Icons.hub_rounded, 'Crew', () => onGoTo(4)),
         const SizedBox(width: Sp.s),
-        btn(Icons.auto_graph_rounded, 'Analytics', () => onGoTo(2)),
+        btn(Icons.auto_graph_rounded, 'Analytics', () => onGoTo(3)),
         const SizedBox(width: Sp.s),
         btn(Icons.sos_rounded, 'Emergency',
             () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SosScreen())),

@@ -1,0 +1,8 @@
+# scikit-learn is pinned: the saved model is a pickle and only loads with the version that wrote it.
+scikit-learn==1.9.1
+numpy
+pandas
+joblib
+fastapi
+uvicorn
+pydantic>=2

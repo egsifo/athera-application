@@ -24,6 +24,7 @@ import '../sensors/demo_generator.dart';
 import '../sensors/demo_sensor_source.dart';
 import '../sensors/ingest.dart';
 import '../sensors/sensor_source.dart';
+import '../wellness/mission_env.dart';
 import 'access_policy.dart';
 
 enum TimeRange { m15, h1, h6, h24 }
@@ -125,6 +126,18 @@ class AppController extends ChangeNotifier {
   late LinkService linkService;
   late SosService sos;
   DemoGenerator? _generator;
+
+  /// Supplies self-reported sleep (hours) for the model's Sleep_Hours input.
+  /// Set by the wellness state; null result = no check-in available.
+  double? Function(String astronautId, DateTime at)? sleepHoursProvider;
+
+  MissionEnvironment get missionEnvironment => MissionEnvironment.fromName(settings.missionEnvironment);
+
+  void setMissionEnvironment(MissionEnvironment e) {
+    settings.missionEnvironment = e.name;
+    _saveSettings();
+    _notify();
+  }
 
   final StreamController<AlertEvent> _newAlerts = StreamController.broadcast();
   Stream<AlertEvent> get newAlerts => _newAlerts.stream;
@@ -606,7 +619,9 @@ class AppController extends ChangeNotifier {
       put('Body_Temp', m.values[VitalType.temperature]);
       final ctx = settings.demoMode && gen != null ? gen.modelContext(id, m.timestamp) : null;
       for (final k in const ['HRV_Stress_Index', 'Radiation_Level', 'Sleep_Hours', 'Physical_Activity_Load']) {
-        put(k, ctx?[k]);
+        // Sleep comes from the user's own check-in whenever there is one.
+        final fromCheckIn = k == 'Sleep_Hours' ? sleepHoursProvider?.call(id, m.timestamp) : null;
+        put(k, fromCheckIn ?? ctx?[k]);
       }
       rows.add(ModelRow(m.timestamp, v));
     }

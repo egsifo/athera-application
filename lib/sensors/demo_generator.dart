@@ -246,19 +246,19 @@ class DemoGenerator {
     return out;
   }
 
-  /// The four non-vital inputs the ATHERA model needs, SIMULATED. Units and
-  /// scales here are placeholders (see AI_INTEGRATION.md): they must be matched
-  /// to the model's training data before any real use.
+  /// The four non-vital inputs the ATHERA model needs, SIMULATED.
   Map<String, double> modelContext(String id, DateTime t) {
     final act = activity(id, t);
     final r = _ramp(id, t);
     final j = _u(id, VitalType.heartRate, t, 9) * 2 - 1;
     double c(double v, double lo, double hi) => double.parse(v.clamp(lo, hi).toStringAsFixed(2));
+    // Ranges follow the simulated training data (ai_service/athera_synthetic_10col.csv):
+    // stress index 0-100, radiation about 13-52, sleep 4.6-8.3 h, activity 0.85-7.5.
     return {
-      'HRV_Stress_Index': c(30 + 35 * act + 40 * r + 3 * j * config.noise, 0, 100),
-      'Radiation_Level': c(0.35 + 0.10 * act + 0.02 * j * config.noise, 0, 10),
-      'Sleep_Hours': c(7.2 - 2.5 * r + 0.1 * j * config.noise, 0, 12),
-      'Physical_Activity_Load': c(100 * act, 0, 100),
+      'HRV_Stress_Index': c(25 + 30 * act + 35 * r + 3 * j * config.noise, 0, 100),
+      'Radiation_Level': c(21.8 + 4 * act + 3 * j * config.noise, 10, 60),
+      'Sleep_Hours': c(6.8 - 1.8 * r + 0.1 * j * config.noise, 4, 9),
+      'Physical_Activity_Load': c(1 + 5 * act, 0.8, 8),
     };
   }
 

@@ -22,3 +22,15 @@ Future<void> shareCsv(BuildContext context, String filename, String content) asy
     }
   }
 }
+
+/// Opens the system share sheet with plain text; falls back to the clipboard.
+Future<void> shareText(BuildContext context, String subject, String text) async {
+  try {
+    await Share.share(text, subject: subject);
+  } catch (e) {
+    await Clipboard.setData(ClipboardData(text: text));
+    if (context.mounted) {
+      showSnack(context, 'Could not open the share sheet ($e). The text was copied to the clipboard instead.', error: true);
+    }
+  }
+}

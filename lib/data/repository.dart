@@ -1,5 +1,7 @@
 import '../domain/ai_models.dart';
 import '../domain/models.dart';
+import '../wellness/check_in.dart';
+import '../wellness/routine.dart';
 
 class PersistenceException implements Exception {
   PersistenceException(this.message);
@@ -51,6 +53,12 @@ abstract class AtheraRepository {
   // Emergency
   Future<void> saveEmergency(EmergencyEvent e);
   Future<List<EmergencyEvent>> emergencies({int limit = 100});
+
+  // Wellness (user-entered, not sensor data)
+  Future<void> saveCheckIn(CheckIn c);
+  Future<List<CheckIn>> checkIns(String astronautId, {int limit = 60});
+  Future<void> setRoutineDone(RoutineLogEntry e, bool done);
+  Future<List<RoutineLogEntry>> routineLog(String astronautId, {String? sinceDay});
 
   // Sync records
   Future<void> addSyncRecord(SyncRecord r);

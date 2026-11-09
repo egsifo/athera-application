@@ -12,6 +12,7 @@ import '../widgets/logo.dart';
 import 'ai_screen.dart';
 import 'alerts_screen.dart';
 import 'crew_screen.dart';
+import 'health_screen.dart';
 import 'home_screen.dart';
 import 'settings_screen.dart';
 import 'sos_screen.dart';
@@ -46,7 +47,19 @@ class _AppShellState extends State<AppShell> {
     super.dispose();
   }
 
-  void _goTo(int i) => setState(() => _tab = i);
+  /// Tabs: 0 Home, 1 Vitals, 2 Health, 3 Analytics, 4 Crew. Index 5 opens Alerts.
+  static const int tabAlerts = 5;
+
+  void _openAlerts() => Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => Scaffold(appBar: AppBar(title: const Text('Alerts')), body: const AlertsScreen())));
+
+  void _goTo(int i) {
+    if (i == tabAlerts) {
+      _openAlerts();
+      return;
+    }
+    setState(() => _tab = i);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +68,9 @@ class _AppShellState extends State<AppShell> {
     final pages = <Widget>[
       HomeScreen(onGoTo: _goTo),
       const VitalsScreen(),
+      const HealthScreen(),
       const AiScreen(),
       const CrewScreen(),
-      const AlertsScreen(),
     ];
 
     return Scaffold(
@@ -77,6 +90,15 @@ class _AppShellState extends State<AppShell> {
               style: IconButton.styleFrom(backgroundColor: AC.sosRed, foregroundColor: Colors.white),
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SosScreen())),
               icon: const Icon(Icons.sos_rounded),
+            ),
+          ),
+          IconButton(
+            tooltip: 'Alerts',
+            onPressed: _openAlerts,
+            icon: Badge(
+              isLabelVisible: openCount > 0,
+              label: Text('$openCount'),
+              child: const Icon(Icons.notifications_none_rounded),
             ),
           ),
           IconButton(
@@ -111,28 +133,17 @@ class _AppShellState extends State<AppShell> {
         selectedIndex: _tab,
         onDestinationSelected: _goTo,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        destinations: [
-          const NavigationDestination(
-              icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard_rounded), label: 'Home'),
-          const NavigationDestination(
-              icon: Icon(Icons.monitor_heart_outlined), selectedIcon: Icon(Icons.monitor_heart), label: 'Vitals'),
-          const NavigationDestination(
-              icon: Icon(Icons.auto_graph_outlined), selectedIcon: Icon(Icons.auto_graph_rounded), label: 'Analytics'),
-          const NavigationDestination(
-              icon: Icon(Icons.hub_outlined), selectedIcon: Icon(Icons.hub_rounded), label: 'Crew'),
+        destinations: const [
           NavigationDestination(
-            icon: Badge(
-              isLabelVisible: openCount > 0,
-              label: Text('$openCount'),
-              child: const Icon(Icons.notifications_none_rounded),
-            ),
-            selectedIcon: Badge(
-              isLabelVisible: openCount > 0,
-              label: Text('$openCount'),
-              child: const Icon(Icons.notifications_rounded),
-            ),
-            label: 'Alerts',
-          ),
+              icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard_rounded), label: 'Home'),
+          NavigationDestination(
+              icon: Icon(Icons.monitor_heart_outlined), selectedIcon: Icon(Icons.monitor_heart), label: 'Vitals'),
+          NavigationDestination(
+              icon: Icon(Icons.favorite_border_rounded), selectedIcon: Icon(Icons.favorite_rounded), label: 'Health'),
+          NavigationDestination(
+              icon: Icon(Icons.auto_graph_outlined), selectedIcon: Icon(Icons.auto_graph_rounded), label: 'Analytics'),
+          NavigationDestination(
+              icon: Icon(Icons.hub_outlined), selectedIcon: Icon(Icons.hub_rounded), label: 'Crew'),
         ],
       ),
     );

@@ -31,6 +31,7 @@ class AppSettings {
     this.demoNoise = 1.0,
     this.demoDropout = 0.01,
     this.demoScenarios = const {},
+    this.missionEnvironment = 'iss',
   })  : aiMode = aiMode ?? _defaultAiMode(),
         aiBaseUrl = aiBaseUrl ?? AppConfig.defaultAiBaseUrl;
 
@@ -51,6 +52,9 @@ class AppSettings {
 
   /// astronautId -> scenario name (see DemoScenario).
   Map<String, String> demoScenarios;
+
+  /// MissionEnvironment name (see wellness/mission_env.dart).
+  String missionEnvironment;
 }
 
 class SettingsStore {
@@ -87,6 +91,7 @@ class SettingsStore {
       demoNoise: _prefs.getDouble('demoNoise') ?? 1.0,
       demoDropout: _prefs.getDouble('demoDropout') ?? 0.01,
       demoScenarios: scenarios,
+      missionEnvironment: _prefs.getString('missionEnvironment') ?? 'iss',
     );
   }
 
@@ -106,6 +111,7 @@ class SettingsStore {
     await _prefs.setDouble('demoNoise', s.demoNoise);
     await _prefs.setDouble('demoDropout', s.demoDropout);
     await _prefs.setString('demoScenarios', jsonEncode(s.demoScenarios));
+    await _prefs.setString('missionEnvironment', s.missionEnvironment);
   }
 
   // The API key lives only in platform secure storage (Keychain / Keystore).
