@@ -194,8 +194,8 @@ class _ForecastViewState extends State<_ForecastView> {
           _Legend(color: AC.cyan, label: 'Measured', dashed: false),
           SizedBox(width: Sp.l),
           _Legend(color: AC.predicted, label: 'Predicted', dashed: true),
-          const Spacer(),
-          const KindTag(DataKind.predicted),
+          Spacer(),
+          KindTag(DataKind.predicted),
         ]),
         const SizedBox(height: Sp.s),
         if (f == null)
