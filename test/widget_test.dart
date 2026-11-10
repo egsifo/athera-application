@@ -19,8 +19,8 @@ void main() {
     expect(find.textContaining('SIMULATED'), findsWidgets);
     expect(find.text('Accuracy'), findsOneWidget);
     expect(find.text('Naive baseline'), findsOneWidget);
-    expect(find.text('Confusion matrix'), findsOneWidget);
-    expect(find.textContaining('Limits, stated plainly'), findsOneWidget);
+    expect(find.text('CONFUSION MATRIX'), findsOneWidget);
+    expect(find.text('LIMITS, STATED PLAINLY'), findsOneWidget);
   });
 
   testWidgets('report load failure shows an error, not a blank screen', (tester) async {
