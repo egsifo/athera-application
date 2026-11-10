@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../analytics/rules.dart';
-import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../domain/ai_models.dart';
 import '../../domain/models.dart';
 import '../../state/app_controller.dart';
-import '../vital_format.dart';
 import '../widgets/charts.dart';
 import '../widgets/common.dart';
 import 'crew_screen.dart' show connectionStyle;

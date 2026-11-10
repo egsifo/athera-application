@@ -13,7 +13,7 @@ import '../../wellness/routine.dart';
 import '../../wellness/vital_status.dart';
 import '../vital_format.dart';
 import '../widgets/body_map.dart';
-import '../widgets/common.dart';
+import '../widgets/common.dart' hide statusColor;
 import '../widgets/guidance_card.dart';
 import 'brief_screen.dart';
 import 'check_in_screen.dart';

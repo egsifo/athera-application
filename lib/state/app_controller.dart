@@ -131,7 +131,7 @@ class AppController extends ChangeNotifier {
   /// Set by the wellness state; null result = no check-in available.
   double? Function(String astronautId, DateTime at)? sleepHoursProvider;
 
-  MissionEnvironment get missionEnvironment => MissionEnvironment.fromName(settings.missionEnvironment);
+  MissionEnvironment get missionEnvironment => missionEnvironmentFromName(settings.missionEnvironment);
 
   void setMissionEnvironment(MissionEnvironment e) {
     settings.missionEnvironment = e.name;

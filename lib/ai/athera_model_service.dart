@@ -1,5 +1,4 @@
 import '../domain/ai_models.dart';
-import 'ai_service.dart';
 import 'http_ai_service.dart';
 
 /// Column names (and order) the ATHERA model expects in every reading.

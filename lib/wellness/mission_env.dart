@@ -46,11 +46,12 @@ extension MissionEnvironmentX on MissionEnvironment {
     final (lo, hi) = oneWayDelaySeconds;
     return (sent.add(Duration(seconds: lo * 2)), sent.add(Duration(seconds: hi * 2)));
   }
+}
 
-  static MissionEnvironment fromName(String? name) {
-    for (final e in MissionEnvironment.values) {
-      if (e.name == name) return e;
-    }
-    return MissionEnvironment.iss;
+/// Parses a stored name; unknown or missing values fall back to the station.
+MissionEnvironment missionEnvironmentFromName(String? name) {
+  for (final e in MissionEnvironment.values) {
+    if (e.name == name) return e;
   }
+  return MissionEnvironment.iss;
 }

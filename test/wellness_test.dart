@@ -52,8 +52,8 @@ void main() {
       expect(hi, t.add(const Duration(minutes: 44)));
     });
     test('fromName falls back to station', () {
-      expect(MissionEnvironment.fromName('nonsense'), MissionEnvironment.iss);
-      expect(MissionEnvironment.fromName('lunar'), MissionEnvironment.lunar);
+      expect(missionEnvironmentFromName('nonsense'), MissionEnvironment.iss);
+      expect(missionEnvironmentFromName('lunar'), MissionEnvironment.lunar);
     });
   });
 
