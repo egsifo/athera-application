@@ -32,6 +32,28 @@ Actions -> the run -> Artifacts -> `athera-apk`.
 
 Details and field mapping: `AI_INTEGRATION.md` section 0.
 
+## The AI service (`ai_service/`) and swapping the training data
+
+```bash
+cd ai_service
+pip install -r requirements-dev.txt
+python -m pytest -q                      # contract, data-validation and retraining tests
+uvicorn api:app --host 0.0.0.0 --port 8000
+```
+
+When the real data arrives (CSV: `Timestamp`, `Heart_Rate`, `SBP`+`DBP` or `Blood_Pressure`, `SpO2`, `Body_Temp`,
+`HRV_Stress_Index`, `Radiation_Level`, `Sleep_Hours`, `Physical_Activity_Load`; one row every 15 minutes, oldest first):
+
+```bash
+python retrain.py --data real_data.csv --data-kind real
+```
+
+It validates the file first (gaps, NaNs, impossible values, missing columns are rejected and nothing is written),
+trains, saves `athera_model.joblib` + `metrics.json`, and rewrites `assets/ai/backtest.json`, which feeds the app's
+**Model report card**. The card says "real" or "simulated" from `--data-kind`, so it never mislabels the data.
+Rebuild the app afterwards (the report is bundled as an asset). The app and the `/predict` contract do not change.
+The "critical" labels come from rule thresholds in `athera_ai.label_risk`; edit them if clinicians give better ones.
+
 ## Run with the mock AI gateway
 
 ```bash
@@ -56,5 +78,5 @@ or your machine's LAN IP on a real phone. Interactive API docs: `http://localhos
 
 ## Status of this build
 
-Not yet compiled or run in the authoring sandbox (no Flutter SDK, no PyPI access there).
-Run `flutter analyze && flutter test` and `pytest` first and fix anything they report.
+CI (GitHub Actions) runs `flutter analyze`, `flutter test`, builds the APK, and runs the `ai_service` pytest suite.
+Never run on a physical device by the authoring tool: test on a phone before demoing.
