@@ -14,7 +14,7 @@ void main() {
     tester.view.physicalSize = const Size(900, 4000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(MaterialApp(home: ModelReportScreen(loader: _load)));
+    await tester.pumpWidget(const MaterialApp(home: ModelReportScreen(loader: _load)));
     await tester.pumpAndSettle();
     expect(find.textContaining('SIMULATED'), findsWidgets);
     expect(find.text('Accuracy'), findsOneWidget);

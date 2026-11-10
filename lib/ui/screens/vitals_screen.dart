@@ -116,9 +116,9 @@ class VitalChartCard extends StatelessWidget {
         ]),
         const SizedBox(height: Sp.s),
         if (isBp)
-          Row(children: [
+          const Row(children: [
             _Legend(color: AC.cyan, label: 'Systolic'),
-            const SizedBox(width: Sp.m),
+            SizedBox(width: Sp.m),
             _Legend(color: AC.blue, label: 'Diastolic'),
           ]),
         const SizedBox(height: Sp.s),

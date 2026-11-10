@@ -308,7 +308,7 @@ class _ReplayPainter extends CustomPainter {
       }
     }
     // Risk line (0..100) below the strips.
-    final top = 3 * (stripH + gap) + 4;
+    const top = 3 * (stripH + gap) + 4;
     final h = size.height - top;
     final path = Path();
     for (var i = 0; i < n; i++) {

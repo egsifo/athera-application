@@ -102,7 +102,7 @@ class RuleEngine {
             astronautId: astronautId,
             title: '${t.label} ${dir == 'high' ? 'above' : 'below'} threshold',
             detail: 'Mean ${fmtNum(m, t == VitalType.temperature ? 1 : 0)} ${t.unit} over the last ${fmtDuration(window)} '
-                '(${recent.length} readings) vs ${dir == 'high' ? 'upper' : 'lower'} limit ${bound} ${t.unit}. '
+                '(${recent.length} readings) vs ${dir == 'high' ? 'upper' : 'lower'} limit $bound ${t.unit}. '
                 'Rule-based screening threshold, not a diagnosis.',
             data: {'metric': t.name, 'mean': m, 'limit': bound, 'readings': recent.length},
           ));

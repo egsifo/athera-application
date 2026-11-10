@@ -76,10 +76,10 @@ class _AppShellState extends State<AppShell> {
     return Scaffold(
       appBar: AppBar(
         titleSpacing: Sp.l,
-        title: Row(children: [
-          const AtheraLogo(size: 26),
-          const SizedBox(width: Sp.s),
-          const Text('ATHERA', style: TextStyle(letterSpacing: 4, fontWeight: FontWeight.w400)),
+        title: const Row(children: [
+          AtheraLogo(size: 26),
+          SizedBox(width: Sp.s),
+          Text('ATHERA', style: TextStyle(letterSpacing: 4, fontWeight: FontWeight.w400)),
         ]),
         actions: [
           if (c.crew.length > 1 && c.accessPolicy.canViewOtherAstronauts(c.settings.role)) _AstronautMenu(c),

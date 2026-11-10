@@ -190,10 +190,10 @@ class _ForecastViewState extends State<_ForecastView> {
             ),
         ]),
         const SizedBox(height: Sp.m),
-        Row(children: [
-          const _Legend(color: AC.cyan, label: 'Measured', dashed: false),
-          const SizedBox(width: Sp.l),
-          const _Legend(color: AC.predicted, label: 'Predicted', dashed: true),
+        const Row(children: [
+          _Legend(color: AC.cyan, label: 'Measured', dashed: false),
+          SizedBox(width: Sp.l),
+          _Legend(color: AC.predicted, label: 'Predicted', dashed: true),
           const Spacer(),
           const KindTag(DataKind.predicted),
         ]),
@@ -281,7 +281,7 @@ class _ConnectionCard extends StatelessWidget {
           at == null ? 'none yet' : '${fmtTime(at)} · ${fmtAgo(at)}${stale ? ' (stale)' : ''}',
           valueColor: at == null || stale ? AC.amber : AC.text,
         ),
-        if (err != null) KeyValueRow('Status', '${err.headline}', valueColor: AC.red),
+        if (err != null) KeyValueRow('Status', err.headline, valueColor: AC.red),
         const SizedBox(height: Sp.s),
         Align(
           alignment: Alignment.centerRight,
@@ -552,7 +552,7 @@ class _InsightsViewState extends State<_InsightsView> {
     final c = widget.c;
     final id = c.selected.id;
     final now = DateTime.now().toUtc();
-    final windows = const {
+    const windows = {
       '15 min': Duration(minutes: 15),
       '1 h': Duration(hours: 1),
       '6 h': Duration(hours: 6),

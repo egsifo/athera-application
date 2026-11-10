@@ -59,7 +59,7 @@ class HealthScreen extends StatelessWidget {
             ]),
           ]),
         ),
-        SectionHeader('Today\'s routine', subtitle: 'Mission habits protect your health'),
+        const SectionHeader('Today\'s routine', subtitle: 'Mission habits protect your health'),
         _RoutineCard(w: w),
         const SectionHeader('Daily check-in'),
         _CheckInCard(w: w),

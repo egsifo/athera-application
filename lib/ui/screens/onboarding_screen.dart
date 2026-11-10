@@ -118,10 +118,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(Sp.xl, 0, Sp.xl, Sp.m),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(Sp.xl, 0, Sp.xl, Sp.m),
               child: Text(AppConfig.disclaimer,
-                  textAlign: TextAlign.center, style: const TextStyle(color: AC.textDim, fontSize: 11)),
+                  textAlign: TextAlign.center, style: TextStyle(color: AC.textDim, fontSize: 11)),
             ),
           ],
         ),

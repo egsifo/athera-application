@@ -53,7 +53,7 @@ class HomeScreen extends StatelessWidget {
           )
         else
           for (final al in alerts.take(3)) _AlertRow(al),
-        SectionHeader('Vital signs', subtitle: 'Tap a card for charts and history'),
+        const SectionHeader('Vital signs', subtitle: 'Tap a card for charts and history'),
         _VitalGrid(c: c, onGoTo: onGoTo),
         const SizedBox(height: Sp.m),
         _EcgCard(c: c),
