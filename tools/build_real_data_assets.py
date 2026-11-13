@@ -52,7 +52,7 @@ rad_json = {
     "instruments": rad,
     "notes": [
         "Instrument dose rate inside the Columbus module. It is not an individual astronaut's dose.",
-        "No data from 2023-07 to 2023-12 for most instruments. Gaps are shown as gaps, never interpolated.",
+        "There are long gaps (for example DosTel2 has no data from 2022-09-24 to 2024-01-24). Gaps are shown as gaps, never interpolated.",
         "The daily mean is dominated by South Atlantic Anomaly passes; the median shows the quiet baseline.",
         "Days with fewer than 90% of that month's usual samples are flagged complete_day=0 and excluded from dose totals.",
     ],

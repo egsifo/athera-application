@@ -74,7 +74,7 @@ class InsightsReport {
   static const _stress = Indicator(id: 'stress', label: 'Stress', unit: '/5', floor: 0.5, minObservations: 4, higherIsWorse: true);
 
   static InsightsReport build(InsightsInput i, {AnomalyEngine engine = const AnomalyEngine()}) {
-    final dq = const DataQualityEngine();
+    const dq = DataQualityEngine();
     final series = <SeriesInput>[];
     final readings = <IndicatorReading>[];
 

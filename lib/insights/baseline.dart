@@ -1,4 +1,4 @@
-import 'robust.dart';
+import 'robust.dart' as rb;
 
 /// A personal baseline learned from an astronaut's own earlier observations.
 class PersonalBaseline {
@@ -18,9 +18,9 @@ class PersonalBaseline {
   static PersonalBaseline? compute(List<double> values, {required int minObservations, required double floor, int fullConfidenceAt = 21}) {
     final v = [for (final x in values) if (x.isFinite) x];
     if (v.length < minObservations) return null;
-    final s = madScale(v);
+    final s = rb.madScale(v);
     return PersonalBaseline(
-      median: median(v),
+      median: rb.median(v),
       scale: s < floor ? floor : s,
       n: v.length,
       confidence: (v.length / fullConfidenceAt).clamp(0.0, 1.0),

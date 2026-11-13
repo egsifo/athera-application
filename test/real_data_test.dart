@@ -22,9 +22,9 @@ void main() {
       expect(s.quietMedianRate, inInclusiveRange(1, 15));
       expect(s.peakInstant!.max, greaterThan(s.peakDay!.mean));
     });
-    test('the documented 2023 gap is detected, not filled', () {
+    test('the long 2022-2024 gap is detected, not filled', () {
       final g = RadStats.gaps(d.instruments['DosTel2']!);
-      expect(g.any((x) => x.$1.year == 2023 && x.$2.difference(x.$1).inDays > 100), isTrue);
+      expect(g.any((x) => x.$1.isBefore(DateTime(2023, 7)) && x.$2.isAfter(DateTime(2023, 12, 31))), isTrue);
     });
     test('malformed data is rejected', () {
       final bad = _json('assets/data/iss_radiation.json') as Map<String, Object?>;

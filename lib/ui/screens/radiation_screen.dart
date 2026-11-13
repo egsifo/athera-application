@@ -103,10 +103,10 @@ class _RadiationScreenState extends State<RadiationScreen> {
       const SectionHeader('Accumulated dose in this window', subtitle: 'Sum of measured complete days only'),
       AtCard(child: SizedBox(height: 180, child: _cumulativeChart(view))),
       const SizedBox(height: Sp.s),
-      Text(
+      const Text(
         'Absorbed dose in µGy (1 mGy = 1000 µGy). It is not converted to mSv, because that needs a radiation-quality '
         'factor this data does not contain.',
-        style: const TextStyle(color: AC.textDim, fontSize: 12, height: 1.35),
+        style: TextStyle(color: AC.textDim, fontSize: 12, height: 1.35),
       ),
       if (gaps.isNotEmpty) ...[
         const SectionHeader('Data gaps'),
@@ -183,7 +183,7 @@ class _RadiationScreenState extends State<RadiationScreen> {
 
   Widget _rateChart(List<RadDay> v) {
     if (v.isEmpty) return _noData();
-    final x0 = 0.0;
+    const x0 = 0.0;
     double x(RadDay d) => d.date.difference(v.first.date).inDays.toDouble();
     List<FlSpot> line(double Function(RadDay) f) {
       final s = <FlSpot>[];

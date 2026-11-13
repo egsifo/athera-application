@@ -4,3 +4,9 @@ linter:
   rules:
     prefer_const_constructors: true
     avoid_print: true
+
+analyzer:
+  errors:
+    # Newer Flutter releases deprecate package:flutter/material.dart in favour of a split package.
+    # The app pins to the Flutter version used by CI; revisit when migrating.
+    deprecated_member_use: ignore
