@@ -32,6 +32,18 @@ Actions -> the run -> Artifacts -> `athera-apk`.
 
 Details and field mapping: `AI_INTEGRATION.md` section 0.
 
+## Real NASA data in the app
+
+`tools/build_real_data_assets.py <data pack dir>` turns the team's NASA data pack into two small assets:
+ISS radiation dose rates (RadLab, 2019-2024, absorbed dose in µGy, never converted to mSv) and Inspiration4 crew blood
+tests (OSDR, 4 people). The app shows them under Health -> Explore. This data has no heart-rate/SpO2 time series, so it
+is NOT used to train the risk model (that still needs 15-minute vitals, see below).
+
+## On-device insights (`lib/insights`)
+
+Personal baseline (median/MAD), anomaly detection against the astronaut's own history, data-quality score, check-in
+trends, and an explanation of the AI result. All pure Dart, offline, unit-tested; with too little history they say so.
+
 ## The AI service (`ai_service/`) and swapping the training data
 
 ```bash
