@@ -15,9 +15,12 @@ import '../vital_format.dart';
 import '../widgets/body_map.dart';
 import '../widgets/common.dart' hide statusColor;
 import '../widgets/guidance_card.dart';
+import 'blood_screen.dart';
 import 'brief_screen.dart';
 import 'check_in_screen.dart';
 import 'hazards_screen.dart';
+import 'insights_screen.dart';
+import 'radiation_screen.dart';
 
 /// Self-assessment hub: guidance, body map, daily routine, check-in, hazards.
 class HealthScreen extends StatelessWidget {
@@ -39,6 +42,25 @@ class HealthScreen extends StatelessWidget {
         GuidanceCard(
           guidance: g,
           onBrief: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const BriefScreen())),
+        ),
+        const SectionHeader('Explore', subtitle: 'Insights from your data and real NASA measurements'),
+        _NavTile(
+          icon: Icons.insights_rounded,
+          title: 'Personal insights',
+          subtitle: 'Data quality, your baseline, unusual patterns, trends',
+          builder: (_) => const InsightsScreen(),
+        ),
+        _NavTile(
+          icon: Icons.radar_rounded,
+          title: 'ISS radiation (real data)',
+          subtitle: 'NASA RadLab dose rates 2019-2024',
+          builder: (_) => const RadiationScreen(),
+        ),
+        _NavTile(
+          icon: Icons.bloodtype_outlined,
+          title: 'Crew blood tests (real data)',
+          subtitle: 'Inspiration4, before and after flight',
+          builder: (_) => const BloodScreen(),
         ),
         const SectionHeader('Body map', subtitle: 'Tap a system to learn what it does and how to check it'),
         AtCard(
@@ -445,4 +467,30 @@ class _HazardTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class _NavTile extends StatelessWidget {
+  const _NavTile({required this.icon, required this.title, required this.subtitle, required this.builder});
+  final IconData icon;
+  final String title, subtitle;
+  final WidgetBuilder builder;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(bottom: Sp.s),
+        child: AtCard(
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: builder)),
+          child: Row(children: [
+            Icon(icon, color: AC.cyan),
+            const SizedBox(width: Sp.m),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(subtitle, style: const TextStyle(color: AC.textDim, fontSize: 12)),
+              ]),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: AC.textDim),
+          ]),
+        ),
+      );
 }

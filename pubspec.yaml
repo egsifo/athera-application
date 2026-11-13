@@ -29,3 +29,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/ai/backtest.json
+    - assets/data/iss_radiation.json
+    - assets/data/i4_blood.json
