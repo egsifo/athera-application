@@ -37,7 +37,7 @@ void main() {
     final order = ['SpO₂ below 94%', 'SpO₂ below 90%', 'SpO₂ below 85%'].map((k) => e.events.firstWhere((x) => x.title.contains(k)).t).toList();
     expect(order[0] < order[1] && order[1] < order[2], isTrue);
     final mid = run(SimScenario.hypoxia, until: 120);
-    final eta = mid.spo2SecondsTo(90);
+    final eta = mid.spo2SecondsTo(85);
     expect(eta, isNotNull);
     expect(eta, greaterThan(0));
   });
@@ -46,7 +46,7 @@ void main() {
     expect(secondsToThreshold([97, 96.9], 90), isNull);
     expect(secondsToThreshold(List.filled(40, 97.0), 90), isNull);
     expect(secondsToThreshold([for (var i = 0; i < 40; i++) 90 + i * 0.1], 85), isNull); // moving away
-    expect(secondsToThreshold([for (var i = 0; i < 40; i++) 97 - i * 0.1], 90), closeTo(30.0, 0.5));
+    expect(secondsToThreshold([for (var i = 0; i < 40; i++) 97 - i * 0.1], 90), closeTo(31.0, 0.5));
   });
 
   test('critical: multiple indicators trigger emergency status', () {

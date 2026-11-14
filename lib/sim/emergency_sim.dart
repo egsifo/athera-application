@@ -174,7 +174,7 @@ class SimEngine {
           sigma = 0.3 + (scenario == SimScenario.lostDegraded && t >= 250 ? 0.8 * math.exp(-(t - 250) / 40.0) : 0);
         }
     }
-    final dtHours = 1 / 3600;
+    const dtHours = 1 / 3600;
     _cum += rate * dtHours; // µGy
     return SimSnapshot(
       t: t, hr: hr, spo2: spo2.clamp(50, 100).toDouble(), rr: rr, temp: temp, activity: act.clamp(0, 1).toDouble(),
