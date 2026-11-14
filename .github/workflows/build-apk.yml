@@ -63,7 +63,8 @@ jobs:
         continue-on-error: true
         uses: actions/deploy-pages@v4
       - name: Live URL
-        run: echo "Live URL: ${{ steps.deploy.outputs.page_url }} (deploy outcome: ${{ steps.deploy.outcome }})"
+        run: |
+          echo "Live URL = ${{ steps.deploy.outputs.page_url }} (deploy outcome = ${{ steps.deploy.outcome }})"
   ai-service:
     runs-on: ubuntu-latest
     steps:
