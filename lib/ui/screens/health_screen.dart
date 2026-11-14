@@ -23,6 +23,7 @@ import 'insights_screen.dart';
 import 'laila_screen.dart';
 import 'mind_screen.dart';
 import 'radiation_screen.dart';
+import 'sim_screen.dart';
 
 /// Self-assessment hub: guidance, body map, daily routine, check-in, hazards.
 class HealthScreen extends StatelessWidget {
@@ -46,6 +47,12 @@ class HealthScreen extends StatelessWidget {
           onBrief: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const BriefScreen())),
         ),
         const SectionHeader('Explore', subtitle: 'Insights from your data and real NASA measurements'),
+        _NavTile(
+          icon: Icons.emergency_rounded,
+          title: 'Emergency simulator',
+          subtitle: 'Fainting, hypoxia, radiation, lost astronaut (simulated)',
+          builder: (_) => const SimScreen(),
+        ),
         _NavTile(
           icon: Icons.psychology_alt_rounded,
           title: 'Astro Mind',
