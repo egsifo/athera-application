@@ -1,0 +1,10 @@
+__pycache__
+tests
+*.csv
+demo_replay.py
+retrain.py
+train.py
+make_backtest.py
+backtest.py
+Dockerfile
+requirements-dev.txt
