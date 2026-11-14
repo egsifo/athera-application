@@ -1,16 +1,25 @@
 import 'dart:math' as math;
 
+import '../emergency/knowledge_base.dart';
 import '../insights/robust.dart';
 
 /// Mission Emergency Simulator. Everything here is SIMULATED, deterministic and
 /// parametric. Curves are plausible illustrations, not clinical models, and no
 /// rule ever infers death: the strongest statement is "suspected loss of consciousness".
 
-enum SimScenario { healthy, fainting, hypoxia, critical, radiation, lost, lostDegraded }
+enum SimScenario { healthy, nearFaint, fainting, hypoxia, chestPain, arrhythmia, respiratory, stroke, heat, allergy, psych, critical, radiation, lost, lostDegraded }
 
 extension SimScenarioX on SimScenario {
   String get label => switch (this) {
         SimScenario.healthy => 'A. Healthy astronaut',
+        SimScenario.nearFaint => 'G1. Feels faint',
+        SimScenario.chestPain => 'G3. Chest pain',
+        SimScenario.arrhythmia => 'G4. Abnormal heart rhythm',
+        SimScenario.respiratory => 'G5. Severe breathing difficulty',
+        SimScenario.stroke => 'G6. Stroke warning signs',
+        SimScenario.heat => 'G7. Heat stress',
+        SimScenario.allergy => 'G8. Allergic emergency',
+        SimScenario.psych => 'G9. Severe psychological distress',
         SimScenario.fainting => 'B. Fainting',
         SimScenario.hypoxia => 'C. Severe hypoxia',
         SimScenario.critical => 'D. Critical medical emergency',
@@ -19,8 +28,45 @@ extension SimScenarioX on SimScenario {
         SimScenario.lostDegraded => 'F2. Lost astronaut, degraded navigation',
       };
   bool get isNav => this == SimScenario.lost || this == SimScenario.lostDegraded;
+  /// The first-aid guide this scenario opens, or null when it has none.
+  EmergencyKind? get guide => switch (this) {
+        SimScenario.nearFaint || SimScenario.fainting => EmergencyKind.syncope,
+        SimScenario.hypoxia => EmergencyKind.hypoxia,
+        SimScenario.chestPain => EmergencyKind.chestPain,
+        SimScenario.arrhythmia => EmergencyKind.arrhythmia,
+        SimScenario.respiratory => EmergencyKind.respiratory,
+        SimScenario.stroke => EmergencyKind.stroke,
+        SimScenario.heat => EmergencyKind.heat,
+        SimScenario.allergy => EmergencyKind.allergy,
+        SimScenario.psych => EmergencyKind.psychological,
+        SimScenario.radiation => EmergencyKind.radiation,
+        _ => null,
+      };
+
+  /// Simulated self-reports: (second, text, severity, kind the report points to).
+  List<(int, String, int, EmergencyKind)> get symptoms => switch (this) {
+        SimScenario.nearFaint => [(50, 'Reported: dizziness', 2, EmergencyKind.syncope), (70, 'Reported: vision narrowing', 2, EmergencyKind.syncope)],
+        SimScenario.chestPain => [(45, 'Reported: chest pressure spreading to the left arm', 3, EmergencyKind.chestPain), (70, 'Reported: cold sweat and nausea', 3, EmergencyKind.chestPain)],
+        SimScenario.arrhythmia => [(100, 'Reported: palpitations and dizziness', 2, EmergencyKind.arrhythmia)],
+        SimScenario.respiratory => [(40, 'Reported: severe shortness of breath', 3, EmergencyKind.respiratory), (90, 'Reported: cannot speak full sentences', 3, EmergencyKind.respiratory)],
+        SimScenario.stroke => [(60, 'Reported: facial droop', 3, EmergencyKind.stroke), (75, 'Reported: arm weakness', 3, EmergencyKind.stroke), (90, 'Reported: slurred speech', 3, EmergencyKind.stroke)],
+        SimScenario.heat => [(100, 'Reported: heavy sweating and weakness', 2, EmergencyKind.heat), (150, 'Reported: confusion', 3, EmergencyKind.heat)],
+        SimScenario.allergy => [(40, 'Reported: widespread hives', 3, EmergencyKind.allergy), (60, 'Reported: throat tightness', 3, EmergencyKind.allergy), (90, 'Reported: dizziness', 3, EmergencyKind.allergy)],
+        SimScenario.psych => [(60, 'Reported: panic, cannot calm down', 2, EmergencyKind.psychological), (120, 'Reported: thoughts of self-harm', 3, EmergencyKind.psychological)],
+        _ => const [],
+      };
+
   int get durationSeconds => switch (this) {
         SimScenario.healthy => 180,
+        SimScenario.nearFaint ||
+        SimScenario.chestPain ||
+        SimScenario.arrhythmia ||
+        SimScenario.respiratory ||
+        SimScenario.stroke ||
+        SimScenario.heat ||
+        SimScenario.allergy ||
+        SimScenario.psych =>
+          240,
         SimScenario.fainting => 240,
         SimScenario.hypoxia => 300,
         SimScenario.critical => 300,
@@ -130,6 +176,35 @@ class SimEngine {
     switch (scenario) {
       case SimScenario.healthy:
         break;
+      case SimScenario.nearFaint:
+        hr = _lerp(hr, 105, _ramp(t, 40, 90));
+        spo2 = _lerp(spo2, 95.5, _ramp(t, 50, 100));
+        act = _lerp(act, 0.1, _ramp(t, 60, 100));
+      case SimScenario.chestPain:
+        hr = _lerp(hr, 112, _ramp(t, 40, 100));
+        spo2 = _lerp(spo2, 95.5, _ramp(t, 50, 120));
+        act = _lerp(act, 0.1, _ramp(t, 45, 80));
+      case SimScenario.arrhythmia:
+        if (t > 60) hr = 135 + 30 * math.sin(t * 1.3) * math.cos(t * 0.4);
+        act = _lerp(act, 0.15, _ramp(t, 90, 130));
+      case SimScenario.respiratory:
+        rr = _lerp(rr, 32, _ramp(t, 30, 120));
+        spo2 = _lerp(spo2, 88, _ramp(t, 40, 160));
+        hr = _lerp(hr, 118, _ramp(t, 40, 140));
+        act = _lerp(act, 0.1, _ramp(t, 50, 100));
+      case SimScenario.stroke:
+        hr = _lerp(hr, 84, _ramp(t, 50, 100));
+      case SimScenario.heat:
+        temp = _lerp(temp, 39.4, _ramp(t, 30, 200));
+        hr = _lerp(hr, 118, _ramp(t, 40, 200));
+        act = _lerp(act, 0.1, _ramp(t, 120, 200));
+      case SimScenario.allergy:
+        spo2 = _lerp(spo2, 90, _ramp(t, 40, 160));
+        hr = _lerp(hr, 125, _ramp(t, 40, 120));
+        rr = _lerp(rr, 26, _ramp(t, 50, 140));
+      case SimScenario.psych:
+        hr = _lerp(hr, 104, _ramp(t, 50, 110));
+        rr = _lerp(rr, 22, _ramp(t, 50, 110));
       case SimScenario.fainting:
         // Prodrome: dizziness, rising HR, slight SpO2 dip; then HR falls and movement stops.
         hr = _lerp(hr, 108, _ramp(t, 50, 95));
@@ -200,6 +275,9 @@ class SimEngine {
     final t = s.t;
     if (t == 0) _fire('start', t, 'Simulation started', 'All values are SIMULATED.', 0);
 
+    for (final sy in scenario.symptoms) {
+      if (sy.$1 == t) _fire('sym${sy.$1}', t, sy.$2, 'Simulated self-report. It is a possible sign, not a diagnosis.', sy.$3);
+    }
     if (s.spo2 < 94) _fire('spo2a', t, 'SpO₂ below 94%', 'Blood oxygen ${s.spo2.toStringAsFixed(1)}%. Re-measure and check the oxygen system.', 1);
     if (s.spo2 < 90) _fire('spo2b', t, 'SpO₂ below 90%', 'Blood oxygen ${s.spo2.toStringAsFixed(1)}%. Escalate: crew and mission control (simulated).', 2);
     if (s.spo2 < 85) _fire('spo2c', t, 'SpO₂ below 85%: critical', 'Follow the approved hypoxia emergency procedure. Mission control notified (simulated).', 3);
@@ -260,6 +338,7 @@ class SimEngine {
       if (scenario == SimScenario.radiation)
         'Peak dose rate ${h.map((e) => e.doseRate).reduce(math.max).toStringAsFixed(0)} µGy/h; accumulated absorbed dose ${h.last.cumDoseUGy.toStringAsFixed(1)} µGy.',
       if (scenario.isNav) 'Greatest distance ${h.map((e) => e.distance).reduce(math.max).round()} m; final distance ${h.last.distance.toStringAsFixed(1)} m.',
+      if (scenario.guide != null) 'Guide opened: ${protocolFor(scenario.guide!).title.en} (general first-aid reference, not clinically reviewed).',
       'These are illustrations, not clinical or orbital data.',
     ];
     return SimReport(lines: lines, eventCount: events.length, firstAlertAt: alerts.isEmpty ? null : alerts.first.t);

@@ -18,6 +18,7 @@ import '../widgets/guidance_card.dart';
 import 'blood_screen.dart';
 import 'brief_screen.dart';
 import 'check_in_screen.dart';
+import 'emergency_guide_screen.dart';
 import 'hazards_screen.dart';
 import 'insights_screen.dart';
 import 'laila_screen.dart';
@@ -47,6 +48,12 @@ class HealthScreen extends StatelessWidget {
           onBrief: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const BriefScreen())),
         ),
         const SectionHeader('Explore', subtitle: 'Insights from your data and real NASA measurements'),
+        _NavTile(
+          icon: Icons.medical_services_rounded,
+          title: 'Emergency guidance (first aid)',
+          subtitle: 'Step-by-step guides for 11 emergencies, English and Arabic',
+          builder: (_) => const EmergencyGuideScreen(),
+        ),
         _NavTile(
           icon: Icons.emergency_rounded,
           title: 'Emergency simulator',

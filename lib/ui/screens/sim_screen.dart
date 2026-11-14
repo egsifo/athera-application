@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../emergency/detector.dart';
+import '../../emergency/knowledge_base.dart';
 import '../../sim/emergency_sim.dart';
+import 'emergency_guide_screen.dart';
 
 /// Mission Emergency Simulator screen. Every number shown is simulated.
 class SimScreen extends StatefulWidget {
@@ -124,6 +127,7 @@ class _SimScreenState extends State<SimScreen> {
               _NavPanel(engine: _engine),
             ],
           ],
+          ..._guidePanel(s),
           const SizedBox(height: 16),
           Text('Timeline', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 4),
@@ -144,6 +148,45 @@ class _SimScreenState extends State<SimScreen> {
         ],
       ),
     );
+  }
+
+  List<Widget> _guidePanel(SimSnapshot? s) {
+    final kind = _scenario.guide;
+    if (s == null || kind == null) return const [];
+    final serious = _engine.events.where((e) => e.severity >= 2).toList();
+    if (serious.isEmpty) return const [];
+    final reported = {for (final sy in _scenario.symptoms.where((x) => x.$1 <= s.t)) sy.$4};
+    final unresponsive = _engine.events.any((e) => e.title.contains('Suspected loss of consciousness'));
+    final det = detectEmergency(
+      hr: s.hr,
+      spo2: s.spo2,
+      rr: s.rr,
+      temp: s.temp,
+      activity: s.activity,
+      doseRate: s.doseRate,
+      reported: reported,
+      unresponsive: unresponsive,
+    );
+    final mine = det.candidates.where((c) => c.kind == kind).toList();
+    final sev = mine.isEmpty ? serious.map((e) => e.severity).reduce((a, b) => a > b ? a : b) : mine.first.severity;
+    return [
+      const SizedBox(height: 16),
+      EmergencyGuideView(
+        key: ValueKey('${_scenario.name}-${unresponsive ? 'u' : 'a'}'),
+        protocol: protocolFor(kind),
+        severity: sev,
+        simulated: true,
+        initialRole: unresponsive ? Role.helper : Role.self,
+        indicators: {
+          'HR': '${s.hr.round()} bpm',
+          'SpO₂': '${s.spo2.toStringAsFixed(1)} %',
+          'Resp.': '${s.rr.round()}/min',
+          'Temp.': '${s.temp.toStringAsFixed(1)} °C',
+        },
+        reported: [for (final e in _engine.events.where((e) => e.title.startsWith('Reported'))) e.title],
+        uncertainty: det.uncertainty,
+      ),
+    ];
   }
 
   Widget _chip(String k, String v) => Chip(label: Text('$k  $v'));
