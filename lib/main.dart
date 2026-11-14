@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import 'data/memory_repository.dart';
@@ -15,8 +16,15 @@ Future<void> main() async {
   AtheraRepository repo;
   String? warning;
   try {
-    repo = SqliteRepository();
-    await repo.init();
+    if (kIsWeb) {
+      // The browser demo has no local database. Say so instead of failing.
+      repo = MemoryRepository();
+      await repo.init();
+      warning = 'Web demo: data is kept in memory only and resets when you reload.';
+    } else {
+      repo = SqliteRepository();
+      await repo.init();
+    }
   } catch (e) {
     // Storage failure must not stop the app: fall back to memory and say so.
     repo = MemoryRepository();

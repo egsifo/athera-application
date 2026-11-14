@@ -35,6 +35,35 @@ jobs:
         run: |
           echo "analyze: ${{ steps.analyze.outcome }}, test: ${{ steps.test.outcome }}"
           exit 1
+  web:
+    # Browser demo. Failures here never block the APK job.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+      - name: Build web
+        run: |
+          [ -d web ] || flutter create . --platforms=web --project-name athera --org com.athera
+          flutter pub get
+          flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: athera-web
+          path: build/web
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+      - name: Deploy to GitHub Pages (needs Pages enabled with source GitHub Actions)
+        id: deploy
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+      - name: Live URL
+        run: echo "Live URL: ${{ steps.deploy.outputs.page_url }} (deploy outcome: ${{ steps.deploy.outcome }})"
   ai-service:
     runs-on: ubuntu-latest
     steps:
