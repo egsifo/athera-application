@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../mind/laila.dart';
 import '../../state/wellness_state.dart';
-import '../widgets/common.dart';
 
 class _Msg {
   const _Msg(this.text, this.fromUser, {this.urgent = false});

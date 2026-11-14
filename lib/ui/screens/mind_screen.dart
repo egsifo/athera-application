@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
 import '../../mind/mind_scenarios.dart';
-import '../../mind/wellbeing.dart';
 import '../../state/wellness_state.dart';
 import '../widgets/common.dart';
 import '../widgets/wellbeing_card.dart';
