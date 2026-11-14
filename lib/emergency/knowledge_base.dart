@@ -118,7 +118,6 @@ class Protocol {
 }
 
 const _contactMcc = Tx('Contact mission medical support now and tell them what you see and when it started.', 'تواصل مع الدعم الطبي للمهمة الآن وأخبرهم بما تراه ومتى بدأ.');
-const _recordTime = Tx('Note the time symptoms began and the latest sensor readings.', 'سجّل وقت بدء الأعراض وآخر قراءات الحساسات.');
 
 const kProtocols = <Protocol>[
   Protocol(

@@ -89,8 +89,8 @@ void main() {
 
     test('syncope has separate guides for self and helper, with the breathing check', () {
       final p = protocolFor(EmergencyKind.syncope);
-      expect(p.self.steps.join(' '), contains('tell a crewmate'));
-      final h = p.helper.steps.join(' ');
+      expect(p.self.steps.map((t) => t.en).join(' '), contains('tell a crewmate'));
+      final h = p.helper.steps.map((t) => t.en).join(' ');
       expect(h, contains('responsiveness'));
       expect(h, contains('breathing'));
       expect(h, contains('CPR'));
