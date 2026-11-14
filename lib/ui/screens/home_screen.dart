@@ -12,6 +12,8 @@ import '../vital_format.dart';
 import '../widgets/charts.dart';
 import '../widgets/common.dart';
 import '../widgets/guidance_card.dart';
+import '../widgets/wellbeing_card.dart';
+import 'mind_screen.dart';
 import 'mission_control_screen.dart';
 import 'sos_screen.dart';
 
@@ -39,6 +41,12 @@ class HomeScreen extends StatelessWidget {
         ]),
         const SizedBox(height: Sp.m),
         GuidanceCard(guidance: context.watch<WellnessState>().guidance, compact: true, onTap: () => onGoTo(2)),
+        const SizedBox(height: Sp.m),
+        WellbeingCard(
+          a: context.watch<WellnessState>().wellbeing,
+          compact: true,
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MindScreen())),
+        ),
         const SizedBox(height: Sp.m),
         _QuickActions(c: c, onGoTo: onGoTo),
         SectionHeader('Active alerts',

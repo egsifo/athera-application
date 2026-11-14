@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../domain/models.dart';
+import '../mind/laila.dart';
+import '../mind/mind_scenarios.dart';
+import '../mind/wellbeing.dart';
 import '../wellness/brief.dart';
 import '../wellness/check_in.dart';
 import '../wellness/guidance.dart';
@@ -31,6 +36,113 @@ class WellnessState extends ChangeNotifier {
   List<RoutineLogEntry> routine = const [];
   String? error;
 
+  /// Set when the person (or Laila's safety protocol) asks for human support. Cleared only by the person.
+  bool urgentSupport = false;
+  LailaScenario lailaScenario = LailaScenario.none;
+  final WellbeingEngine _wellbeing = const WellbeingEngine();
+
+  WellbeingAssessment get wellbeing => _wellbeing.assess(checkIns, urgentRequest: urgentSupport);
+  List<WellbeingAlert> get wellbeingAlerts => _wellbeing.alertHistory(checkIns);
+  List<(DateTime, int)> get wellbeingSeries => _wellbeing.scoreSeries(checkIns);
+
+  // ---- Astro Mind simulation: in-memory only, never written to the database.
+  MindScenario? simScenario;
+  bool simRunning = false;
+  double simSpeed = 1;
+  int simDay = 0;
+  List<CheckIn> _simFull = const [];
+  List<CheckIn>? _realBackup;
+  bool? _urgentBackup;
+  Timer? _simTimer;
+
+  bool get simActive => simScenario != null;
+
+  void startSim(MindScenario s) {
+    _simTimer?.cancel();
+    if (_realBackup == null) {
+      _realBackup = checkIns;
+      _urgentBackup = urgentSupport;
+    }
+    simScenario = s;
+    _simFull = buildMindScenario(s, astronautId: astronautId, today: _now);
+    simDay = 4; // a trend needs at least 4 observations, so start there
+    lailaScenario = s.laila;
+    urgentSupport = false;
+    _applySim();
+    simRunning = true;
+    _armTimer();
+    notifyListeners();
+  }
+
+  void _armTimer() {
+    _simTimer?.cancel();
+    _simTimer = Timer.periodic(Duration(milliseconds: (1500 / simSpeed).round()), (_) {
+      if (simDay >= kMindDays) {
+        simRunning = false;
+        _simTimer?.cancel();
+        notifyListeners();
+        return;
+      }
+      simDay++;
+      _applySim();
+      notifyListeners();
+    });
+  }
+
+  void _applySim() {
+    checkIns = _simFull.take(simDay).toList().reversed.toList();
+    if (simScenario == MindScenario.severeDistress && simDay >= kMindDays) urgentSupport = true;
+  }
+
+  void pauseSim() {
+    simRunning = false;
+    _simTimer?.cancel();
+    notifyListeners();
+  }
+
+  void resumeSim() {
+    if (!simActive || simDay >= kMindDays) return;
+    simRunning = true;
+    _armTimer();
+    notifyListeners();
+  }
+
+  void setSimSpeed(double v) {
+    simSpeed = v;
+    if (simRunning) _armTimer();
+    notifyListeners();
+  }
+
+  /// Back to exactly the real stored state.
+  void resetSim() {
+    _simTimer?.cancel();
+    simScenario = null;
+    simRunning = false;
+    simDay = 0;
+    _simFull = const [];
+    if (_realBackup != null) checkIns = _realBackup!;
+    urgentSupport = _urgentBackup ?? false;
+    _realBackup = null;
+    _urgentBackup = null;
+    lailaScenario = LailaScenario.none;
+    notifyListeners();
+  }
+
+  void requestHumanSupport() {
+    urgentSupport = true;
+    notifyListeners();
+  }
+
+  void clearHumanSupport() {
+    urgentSupport = false;
+    notifyListeners();
+  }
+
+  void setLailaScenario(LailaScenario s) {
+    lailaScenario = s;
+    notifyListeners();
+  }
+
   MissionEnvironment get environment => _c.missionEnvironment;
   String get astronautId => _c.selected.id;
 
@@ -57,6 +169,7 @@ class WellnessState extends ChangeNotifier {
   }
 
   Future<void> load(String id) async {
+    if (simActive) resetSim();
     _loading = true;
     try {
       if (_c.demoMode) await _seedDemo(id);
@@ -234,6 +347,7 @@ class WellnessState extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _simTimer?.cancel();
     _c.removeListener(_onController);
     if (_c.sleepHoursProvider == sleepAt) _c.sleepHoursProvider = null;
     super.dispose();
